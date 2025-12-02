@@ -28,7 +28,21 @@ public class ScriptUtil {
      * @throws IOException exception
      */
     public static void markScriptFile(String scriptFileName, String scriptContent) throws IOException {
+        // make file: filePath/gluesource/666-123456789.py
         FileTool.writeString(scriptFileName, scriptContent);
+
+        /*FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(scriptFileName);
+            fileOutputStream.write(scriptContent.getBytes("UTF-8"));
+            fileOutputStream.close();
+        } catch (Exception e) {
+            throw e;
+        }finally{
+            if(fileOutputStream != null){
+                fileOutputStream.close();
+            }
+        }*/
     }
 
     /**
@@ -120,5 +134,65 @@ public class ScriptUtil {
             }
         }
     }
+
+    /**
+     * 脚本执行，日志文件实时输出
+     *
+     * 优点：支持将目标数据实时输出到指定日志文件中去
+     * 缺点：
+     *      标准输出和错误输出优先级固定，可能和脚本中顺序不一致
+     *      Java无法实时获取
+     *
+     *      <!-- commons-exec -->
+     * 		<dependency>
+     * 			<groupId>org.apache.commons</groupId>
+     * 			<artifactId>commons-exec</artifactId>
+     * 			<version>${commons-exec.version}</version>
+     * 		</dependency>
+     *
+     * @param command
+     * @param scriptFile
+     * @param logFile
+     * @param params
+     * @return
+     * @throws IOException
+     */
+    /*public static int execToFileB(String command, String scriptFile, String logFile, String... params) throws IOException {
+        // 标准输出：print （null if watchdog timeout）
+        // 错误输出：logging + 异常 （still exists if watchdog timeout）
+        // 标准输入
+
+        FileOutputStream fileOutputStream = null;   //
+        try {
+            fileOutputStream = new FileOutputStream(logFile, true);
+            PumpStreamHandler streamHandler = new PumpStreamHandler(fileOutputStream, fileOutputStream, null);
+
+            // command
+            CommandLine commandline = new CommandLine(command);
+            commandline.addArgument(scriptFile);
+            if (params!=null && params.length>0) {
+                commandline.addArguments(params);
+            }
+
+            // exec
+            DefaultExecutor exec = new DefaultExecutor();
+            exec.setExitValues(null);
+            exec.setStreamHandler(streamHandler);
+            int exitValue = exec.execute(commandline);  // exit code: 0=success, 1=error
+            return exitValue;
+        } catch (Exception e) {
+            XxlJobLogger.log(e);
+            return -1;
+        } finally {
+            if (fileOutputStream != null) {
+                try {
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    XxlJobLogger.log(e);
+                }
+
+            }
+        }
+    }*/
 
 }

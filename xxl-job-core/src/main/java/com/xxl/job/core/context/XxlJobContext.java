@@ -30,7 +30,7 @@ public class XxlJobContext {
      * job log timestamp
      */
     private final long jobLogTime;
-
+    
     /**
      * job log filename
      */
@@ -66,11 +66,11 @@ public class XxlJobContext {
     private String handleMsg;
 
 
-    public XxlJobContext(long jobId,
+    public XxlJobContext(long jobId, 
                          String jobParam,
                          long jobLogTime,
                          String jobLogFileName,
-                         int shardIndex,
+                         int shardIndex, 
                          int shardTotal) {
         this.jobId = jobId;
         this.jobParam = jobParam;
@@ -127,7 +127,7 @@ public class XxlJobContext {
     /**
      * xxl-job context store
      */
-    private static final InheritableThreadLocal<XxlJobContext> contextHolder = new InheritableThreadLocal<>(); // support for child thread of job handler)
+    private static final InheritableThreadLocal<XxlJobContext> contextHolder = new InheritableThreadLocal<XxlJobContext>(); // support for child thread of job handler)
 
     /**
      * set xxl-job context

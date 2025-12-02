@@ -1,5 +1,6 @@
 package com.xxl.job.core.context;
 
+import com.xxl.job.core.log.XxlJobFileAppender;
 import com.xxl.tool.core.DateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,8 +174,7 @@ public class XxlJobHelper {
         String logFileName = xxlJobContext.getJobLogFileName();
 
         if (logFileName!=null && !logFileName.trim().isEmpty()) {
-            // todo add this log stuff
-            //XxlJobFileAppender.appendLog(logFileName, formatAppendLog);
+            XxlJobFileAppender.appendLog(logFileName, formatAppendLog);
             return true;
         } else {
             logger.info(">>>>>>>>>>> {}", formatAppendLog);
