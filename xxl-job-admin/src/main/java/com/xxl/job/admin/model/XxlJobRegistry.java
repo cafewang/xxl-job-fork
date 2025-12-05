@@ -13,6 +13,15 @@ public class XxlJobRegistry {
     private String registryValue;
     private Date updateTime;
 
+    public XxlJobRegistry() {
+    }
+
+    public XxlJobRegistry(String registryGroup, String registryKey, String registryValue) {
+        this.registryGroup = registryGroup;
+        this.registryKey = registryKey;
+        this.registryValue = registryValue;
+    }
+
     public int getId() {
         return id;
     }

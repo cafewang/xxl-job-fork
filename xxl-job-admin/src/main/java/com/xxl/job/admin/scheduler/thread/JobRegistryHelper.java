@@ -3,16 +3,18 @@ package com.xxl.job.admin.scheduler.thread;
 import com.xxl.job.admin.model.XxlJobGroup;
 import com.xxl.job.admin.model.XxlJobRegistry;
 import com.xxl.job.admin.scheduler.config.XxlJobAdminBootstrap;
+import com.xxl.job.core.constant.Const;
 import com.xxl.job.core.constant.RegistType;
 import com.xxl.job.core.openapi.model.RegistryRequest;
-import com.xxl.job.core.constant.Const;
 import com.xxl.tool.core.StringTool;
 import com.xxl.tool.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * job registry instance helper
@@ -62,7 +64,7 @@ public class JobRegistryHelper {
 					try {
 						// auto registry group
 						List<XxlJobGroup> groupList = XxlJobAdminBootstrap.getInstance().getXxlJobGroupMapper().findByAddressType(0);
-						if (groupList!=null && !groupList.isEmpty()) {
+						if (!CollectionUtils.isEmpty(groupList)) {
 
 							// remove dead address (admin/executor)
 							List<Integer> ids = XxlJobAdminBootstrap.getInstance().getXxlJobRegistryMapper().findDead(Const.DEAD_TIMEOUT, new Date());
@@ -71,23 +73,10 @@ public class JobRegistryHelper {
 							}
 
 							// fresh online address (admin/executor)
-							HashMap<String, List<String>> appAddressMap = new HashMap<String, List<String>>();
+							Map<String, List<String>> appAddressMap = new HashMap<String, List<String>>();
 							List<XxlJobRegistry> list = XxlJobAdminBootstrap.getInstance().getXxlJobRegistryMapper().findAll(Const.DEAD_TIMEOUT, new Date());
 							if (list != null) {
-								for (XxlJobRegistry item: list) {
-									if (RegistType.EXECUTOR.name().equals(item.getRegistryGroup())) {
-										String appname = item.getRegistryKey();
-										List<String> registryList = appAddressMap.get(appname);
-										if (registryList == null) {
-											registryList = new ArrayList<String>();
-										}
-
-										if (!registryList.contains(item.getRegistryValue())) {
-											registryList.add(item.getRegistryValue());
-										}
-										appAddressMap.put(appname, registryList);
-									}
-								}
+								appAddressMap = buildAddressMap(list);
 							}
 
 							// fresh group address
@@ -96,12 +85,7 @@ public class JobRegistryHelper {
 								String addressListStr = null;
 								if (registryList!=null && !registryList.isEmpty()) {
 									Collections.sort(registryList);
-									StringBuilder addressListSB = new StringBuilder();
-									for (String item:registryList) {
-										addressListSB.append(item).append(",");
-									}
-									addressListStr = addressListSB.toString();
-									addressListStr = addressListStr.substring(0, addressListStr.length()-1);
+									addressListStr = String.join(",", registryList);
 								}
 								group.setAddressList(addressListStr);
 								group.setUpdateTime(new Date());
@@ -128,6 +112,11 @@ public class JobRegistryHelper {
 		registryMonitorThread.setDaemon(true);
 		registryMonitorThread.setName("xxl-job, admin JobRegistryMonitorHelper-registryMonitorThread");
 		registryMonitorThread.start();
+	}
+
+	public static Map<String, List<String>> buildAddressMap(List<XxlJobRegistry> list) {
+		return list.stream().filter(item -> RegistType.EXECUTOR.name().equals(item.getRegistryGroup()))
+				.collect(Collectors.groupingBy(XxlJobRegistry::getRegistryKey, Collectors.mapping(XxlJobRegistry::getRegistryValue, Collectors.toList())));
 	}
 
 
